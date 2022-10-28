@@ -5,7 +5,7 @@
 //  Created by Zhandos Baimurat on 10.09.2022.
 //
 
-import UIKit
+import SnapKit
 
 class HomeViewController: UIViewController {
     // ------------------------------
@@ -52,18 +52,6 @@ class HomeViewController: UIViewController {
         let imageView = UIImageView(image: image!)
         return imageView
     }()
-    private let bottomSheetView: UIView = {
-        let view = UIView()
-        let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
-        blurView.frame = view.bounds
-        blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        blurView.layer.cornerRadius = 30
-        blurView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        blurView.clipsToBounds = true
-        view.addSubview(blurView)
-        return view
-    }()
-    
     
     // ------------------------------
     // MARK: - Life cycle
@@ -71,20 +59,33 @@ class HomeViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        presentBottomSheet()
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupBackground()
         setupViews()
-    }
-    
-    func bindViewModel() {
-        self.viewModel.fetchWeather()
     }
     
     // ------------------------------
     // MARK: - Weather UI setup
     // ------------------------------
+    
+    private func presentBottomSheet() {
+        bottomSheedVc = WeatherBottomSheetViewController()
+        guard let bottomSheedVc = bottomSheedVc else {
+            return
+        }
+        let nav = UINavigationController(rootViewController: bottomSheedVc)
+        nav.modalPresentationStyle = .pageSheet
+        nav.isModalInPresentation = true
+        if let sheet = nav.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.largestUndimmedDetentIdentifier = .medium
+        }
+        present(nav, animated: true, completion: nil)
+    }
     
     func setupBackground() {
         guard let image = UIImage(named: "main_background.png") else { return }
@@ -99,8 +100,7 @@ class HomeViewController: UIViewController {
          temperatureLabel,
          descriptionLabel,
          hlLabel,
-         homeImageView,
-         bottomSheetView
+         homeImageView
         ].forEach(view.addSubview(_:))
                 
         setupConstraints()
@@ -132,12 +132,6 @@ class HomeViewController: UIViewController {
             make.top.equalTo(hlLabel.snp.bottom).offset(16)
             make.centerX.equalToSuperview()
             make.height.equalToSuperview().dividedBy(2)
-        }
-        
-        bottomSheetView.snp.makeConstraints { make in
-            make.bottom.equalToSuperview()
-            make.width.equalToSuperview()
-            make.height.equalToSuperview().dividedBy(2.8)
         }
     }
 }
