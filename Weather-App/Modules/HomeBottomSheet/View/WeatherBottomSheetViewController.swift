@@ -6,6 +6,7 @@
 //
 
 import SnapKit
+import UIKit
 
 class WeatherBottomSheetViewController: UIViewController {
     
@@ -31,32 +32,37 @@ class WeatherBottomSheetViewController: UIViewController {
         view.backgroundColor = .lightGray
         return view
     }()
+    private let weatherTableView: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .grouped)
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(WeatherTableCell.self, forCellReuseIdentifier: WeatherTableCell.identifier)
+        tableView.register(WeatherTableViewHeader.self, forHeaderFooterViewReuseIdentifier: "header")
+        tableView.sectionHeaderHeight = UITableView.automaticDimension
+        tableView.sectionFooterHeight = UITableView.automaticDimension
+        tableView.rowHeight = UITableView.automaticDimension
+        
+        return tableView
+    }()
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setBlurBackground()
-        setupBottomViews()
         
-        // Do any additional setup after loading the view.
-    }
-    
-    func setupBottomViews() {
-        
-        [hourlyForecastLabel,
-         weeklyForecastLabel,
-         separatorView].forEach(view.addSubview(_:))
-        setupBottomSheetViewConstraints()
+        view.addSubview(weatherTableView)
+        weatherTableView.backgroundColor = UIColor.clear
+        weatherTableView.delegate = self
+        weatherTableView.dataSource = self
+        weatherTableView.frame = view.bounds
     }
     
     private func setBlurBackground() {
-        let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
-        blurView.frame = view.bounds
-        blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        blurView.layer.cornerRadius = 30
-        blurView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        blurView.clipsToBounds = true
-        view.addSubview(blurView)
+        view.backgroundColor = UIColor.clear
+        let blurEffect = UIBlurEffect(style: .dark)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = self.view.bounds
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        weatherTableView.backgroundView = blurEffectView
     }
 
 
@@ -74,14 +80,36 @@ class WeatherBottomSheetViewController: UIViewController {
             make.height.equalTo(0.5)
         }
     }
-    /*
-    // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+}
+
+extension WeatherBottomSheetViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
     }
-    */
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        80
+    }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: "header") as! WeatherTableViewHeader
+        return header
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: WeatherTableCell.identifier, for: indexPath) as! WeatherTableCell
+        let visualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .light)) as UIVisualEffectView
+        visualEffectView.frame = CGRect(x: 0, y: 0, width: cell.bounds.width, height: cell.bounds.height)
+        return cell
+    }
 
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
 }

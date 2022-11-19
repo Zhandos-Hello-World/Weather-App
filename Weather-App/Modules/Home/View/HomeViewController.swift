@@ -7,11 +7,12 @@
 
 import SnapKit
 
-class HomeViewController: UIViewController {
+
+class HomeViewController: UIViewController, HomeViewProtocol {
     // ------------------------------
     // MARK: - Properties
     // ------------------------------
-    var viewModel = HomeViewModel()
+    private let presenter: HomeViewPresenterProtocol
     private var bottomSheedVc: WeatherBottomSheetViewController? = nil
     
     // ------------------------------
@@ -53,6 +54,15 @@ class HomeViewController: UIViewController {
         return imageView
     }()
     
+    init(presenter: HomeViewPresenterProtocol) {
+        self.presenter = presenter
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // ------------------------------
     // MARK: - Life cycle
     // ------------------------------
@@ -64,8 +74,34 @@ class HomeViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter.loadView(lat: "44", lon: "76", apiKey: API_KEY, units: "metric", lang: "en")
         setupBackground()
         setupViews()
+    }
+    
+    // ------------------------------
+    // MARK: - HomeViewProtocol
+    // ------------------------------
+    
+    func updateView() {
+        guard let model = presenter.model() else {
+            return
+        }
+        cityLabel.text = "Almaty"
+        temperatureLabel.text = "\(model.tempepature)°"
+        descriptionLabel.text = model.description
+        hlLabel.text = "H:\(model.tempMax) L:\(model.tempMin)"
+    }
+    
+    func updateView(withLoader isLoading: Bool) {
+        cityLabel.text = ""
+        temperatureLabel.text = "__"
+        descriptionLabel.text = "Loading"
+        hlLabel.text = "H:__ L:__"
+    }
+    
+    func updateView(withError message: String) {
+        print(message)
     }
     
     // ------------------------------
@@ -135,20 +171,6 @@ class HomeViewController: UIViewController {
         }
     }
 }
-
-
-extension UIButton.Configuration {
-    public static func outline() -> UIButton.Configuration {
-        var style = UIButton.Configuration.plain()
-        var background = UIButton.Configuration.plain().background
-        background.cornerRadius = 20
-        background.strokeWidth = 1
-        background.strokeColor = UIColor.systemGray5
-        style.background = background
-        return style
-    }
-}
-
 
 extension UIView {
    func roundCorners(corners: UIRectCorner, radius: CGFloat) {
