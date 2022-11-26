@@ -7,13 +7,13 @@
 
 import SnapKit
 
-
 class HomeViewController: UIViewController, HomeViewProtocol {
     // ------------------------------
     // MARK: - Properties
     // ------------------------------
     private let presenter: HomeViewPresenterProtocol
-    private var bottomSheedVc: WeatherBottomSheetViewController? = nil
+    private var bottomSheedVc: UIViewController? = nil
+    private static let API_KEY = "e6aa2b8805ea7395b9835bc2b7a6f9ab"
     
     // ------------------------------
     // MARK: - UI components
@@ -54,6 +54,9 @@ class HomeViewController: UIViewController, HomeViewProtocol {
         return imageView
     }()
     
+    // ------------------------------
+    // MARK: - Init
+    // ------------------------------
     init(presenter: HomeViewPresenterProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
@@ -74,7 +77,7 @@ class HomeViewController: UIViewController, HomeViewProtocol {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter.loadView(lat: "44", lon: "76", apiKey: API_KEY, units: "metric", lang: "en")
+        presenter.loadView(lat: "44", lon: "76", apiKey: HomeViewController.API_KEY, units: "metric", lang: "en")
         setupBackground()
         setupViews()
     }
@@ -109,7 +112,7 @@ class HomeViewController: UIViewController, HomeViewProtocol {
     // ------------------------------
     
     private func presentBottomSheet() {
-        bottomSheedVc = WeatherBottomSheetViewController()
+        bottomSheedVc = WeatherBottomAssembly.assembler.weatherBottomVC()
         guard let bottomSheedVc = bottomSheedVc else {
             return
         }
@@ -165,18 +168,9 @@ class HomeViewController: UIViewController, HomeViewProtocol {
         }
 
         homeImageView.snp.makeConstraints { make in
-            make.top.equalTo(hlLabel.snp.bottom).offset(16)
+            make.centerY.equalToSuperview()
             make.centerX.equalToSuperview()
             make.height.equalToSuperview().dividedBy(2)
         }
-    }
-}
-
-extension UIView {
-   func roundCorners(corners: UIRectCorner, radius: CGFloat) {
-        let path = UIBezierPath(roundedRect: bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
-        let mask = CAShapeLayer()
-        mask.path = path.cgPath
-        layer.mask = mask
     }
 }

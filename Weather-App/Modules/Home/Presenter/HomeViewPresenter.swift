@@ -50,22 +50,4 @@ class HomeViewPresenter: HomeViewPresenterProtocol {
     func model() -> HomeModelProtocol? {
         return homeModel
     }
-    
-    
-//    func fetchWeather() {
-//        let session = URLSession.shared
-//        guard let url = URL(string: "url") else { return }
-//        session.dataTask(with: url) { [weak self]  data, _, error in
-//            guard let data = data else {
-//                return
-//            }
-//
-//            do {
-//                let weatherModel = try JSONDecoder().decode(WeatherModel.self, from: data)
-//                self?.view?.set(currentWeather: weatherModel)
-//            } catch let error {
-//                print("Network in decoding:", error.localizedDescription)
-//            }
-//        }.resume()
-//    }
 }

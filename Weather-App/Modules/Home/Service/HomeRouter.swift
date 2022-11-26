@@ -24,7 +24,7 @@ enum HomeRouter: Router {
         return .get
     }
     
-    var parameters: Parameters<String, Any> {
+    var parameters: Parameters {
         switch self {
         case .weather(let lat, let lon, let apiKey, let units, let lang):
             return ["lat": lat, "lon": lon, "units": units, "lang": lang,"appid": apiKey]

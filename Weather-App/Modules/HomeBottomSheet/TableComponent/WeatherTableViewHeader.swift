@@ -8,9 +8,13 @@
 import SnapKit
 
 class WeatherTableViewHeader: UITableViewHeaderFooterView {
+    
+    // ------------------------------
+    // MARK: - UI components
+    // ------------------------------
     private lazy var cityLabel: UILabel = {
         let label = UILabel()
-        label.text = "Montreal"
+        label.text = "Almaty"
         label.font = UIFont.systemFont(ofSize: 34, weight: UIFont.Weight.regular)
         label.textColor = UIColor.white
         return label
@@ -18,23 +22,28 @@ class WeatherTableViewHeader: UITableViewHeaderFooterView {
     
     private lazy var temperatureLabel: UILabel = {
         let label = UILabel()
-        label.text = "19°| Mostly Clear"
+        label.text = "3°| Mostly Clear"
         label.font = UIFont.systemFont(ofSize: 20, weight: UIFont.Weight.semibold)
         label.textColor = .gray
         return label
     }()
     
+    // ------------------------------
+    // MARK: - Init
+    // ------------------------------
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
         setupViews()
     }
-    
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         
     }
     
+    // ------------------------------
+    // MARK: - Setup view
+    // ------------------------------
     private func setupViews() {
         [cityLabel, temperatureLabel].forEach(addSubview(_:))
         setupConstraints()
@@ -51,4 +60,9 @@ class WeatherTableViewHeader: UITableViewHeaderFooterView {
             make.centerX.equalToSuperview()
         }
     }
+    
+    func configure(with weather: WeatherDayModel) {
+        temperatureLabel.text = "\(weather.tempDay)°| \(weather.condition)"
+    }
+    
 }

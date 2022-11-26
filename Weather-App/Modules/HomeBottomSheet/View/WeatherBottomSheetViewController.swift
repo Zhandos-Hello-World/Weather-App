@@ -9,6 +9,10 @@ import SnapKit
 import UIKit
 
 class WeatherBottomSheetViewController: UIViewController {
+    // ------------------------------
+    // MARK: - Proporties
+    // ------------------------------
+    private let presenter: WeatherBottomSheetPresenterProtocol
     
     // ------------------------------
     // MARK: - UI components
@@ -40,22 +44,40 @@ class WeatherBottomSheetViewController: UIViewController {
         tableView.sectionHeaderHeight = UITableView.automaticDimension
         tableView.sectionFooterHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
-        
+        tableView.backgroundColor = UIColor.clear
+        tableView.showsVerticalScrollIndicator = false
         return tableView
     }()
     
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setBlurBackground()
-        
-        view.addSubview(weatherTableView)
-        weatherTableView.backgroundColor = UIColor.clear
-        weatherTableView.delegate = self
-        weatherTableView.dataSource = self
-        weatherTableView.frame = view.bounds
+    // ------------------------------
+    // MARK: - Init
+    // ------------------------------
+    init(presenter: WeatherBottomSheetPresenterProtocol) {
+        self.presenter = presenter
+        super.init(nibName: nil, bundle: nil)
     }
     
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // ------------------------------
+    // MARK: - Life cycle
+    // ------------------------------
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        presenter.loadView(lat: "43.22", lon: "76.85", extra: true)
+        setBlurBackground()
+        
+        weatherTableView.dataSource = self
+        weatherTableView.delegate = self
+        weatherTableView.frame = view.bounds
+        view.addSubview(weatherTableView)
+    }
+    
+    // ------------------------------
+    // MARK: - Setup view
+    // ------------------------------
     private func setBlurBackground() {
         view.backgroundColor = UIColor.clear
         let blurEffect = UIBlurEffect(style: .dark)
@@ -90,7 +112,7 @@ extension WeatherBottomSheetViewController: UITableViewDelegate, UITableViewData
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        return presenter.itemsCount
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -106,10 +128,25 @@ extension WeatherBottomSheetViewController: UITableViewDelegate, UITableViewData
         let cell = tableView.dequeueReusableCell(withIdentifier: WeatherTableCell.identifier, for: indexPath) as! WeatherTableCell
         let visualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .light)) as UIVisualEffectView
         visualEffectView.frame = CGRect(x: 0, y: 0, width: cell.bounds.width, height: cell.bounds.height)
+        cell.configure(with: presenter.model(for: indexPath), index: indexPath.count)
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+
+extension WeatherBottomSheetViewController: WeatherBottomSheetViewProtocol {
+    func updateView() {
+        weatherTableView.reloadData()
+    }
+    
+    func updateView(withLoader isLoading: Bool) {
+        //TODO LOADING STATE
+    }
+    
+    func updateView(withError message: String) {
+        //TODO ERROR STATE
     }
 }
